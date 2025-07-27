@@ -2,8 +2,6 @@ package readers
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
-	"os"
 )
 
 type (
@@ -15,18 +13,6 @@ type (
 )
 
 func ReadLabels() ([]Label, error) {
-	var labels []Label
-	labelFile := fmt.Sprintf("%s/labels.yaml", dataDirectory)
-
-	fd, err := os.Open(labelFile)
-	if err != nil {
-		return nil, err
-	}
-
-	decoder := yaml.NewDecoder(fd)
-	if err := decoder.Decode(&labels); err != nil {
-		return nil, err
-	}
-
-	return labels, nil
+	filePath := fmt.Sprintf("%s/labels.yaml", dataDirectory)
+	return readYAMLFile[[]Label](filePath)
 }

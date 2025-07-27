@@ -45,6 +45,11 @@ func main() {
 		log.Fatalf("failed to read labels: %v", err)
 	}
 
+	_, err = readers.ReadRepositories()
+	if err != nil {
+		log.Fatalf("failed to read repositories: %v", err)
+	}
+
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		if err := om.realizeMembers(ctx, members); err != nil {
 			log.Fatalf("failed to manage members: %v", err)

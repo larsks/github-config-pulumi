@@ -1,0 +1,7 @@
+name: github-config
+description: Repository for managing ocp-on-nerc github organization
+required_status_checks:
+- pre-commit
+teams:
+- name: nerc-ops
+  permissions: push

@@ -1,0 +1,32 @@
+description: ''
+members:
+- role: maintainer
+  name: larsks
+- role: maintainer
+  name: Milstein
+- role: member
+  name: nathanweeks
+- role: member
+  name: zaoxing
+- role: member
+  name: syedmohdqasim
+- role: member
+  name: computate
+- role: member
+  name: Zongshun96
+- role: member
+  name: DanNiESh
+- role: member
+  name: gagansk
+- role: member
+  name: IsaiahStapleton
+- role: maintainer
+  name: hpdempsey
+- role: member
+  name: griffinandrew
+- role: maintainer
+  name: dystewart
+- role: member
+  name: memalhot
+name: nerc-rhods
+privacy: closed

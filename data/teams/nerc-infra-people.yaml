@@ -1,0 +1,6 @@
+description: People who can authenticate to nerc-ocp-infra
+members:
+- role: maintainer
+  name: larsks
+name: nerc-infra-people
+privacy: closed

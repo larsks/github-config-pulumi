@@ -1,0 +1,10 @@
+description: ''
+members:
+- role: maintainer
+  name: larsks
+- role: member
+  name: gagansk
+- role: member
+  name: skanthed
+name: nerc-curator
+privacy: closed

@@ -1,0 +1,22 @@
+description: Admin users for the observability cluster
+members:
+- role: maintainer
+  name: jtriley
+- role: maintainer
+  name: aabaris
+- role: member
+  name: computate
+- role: member
+  name: dheerajodha
+- role: member
+  name: harshil-codes
+- role: member
+  name: RH-csaggin
+- role: member
+  name: schwesig
+- role: member
+  name: jbasu01
+- role: member
+  name: bnshr
+name: nerc-obs-admins
+privacy: closed

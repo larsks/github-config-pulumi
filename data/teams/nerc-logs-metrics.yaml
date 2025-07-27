@@ -1,0 +1,46 @@
+description: Access to metrics and logs on the nerc-infra cluster
+members:
+- role: maintainer
+  name: jtriley
+- role: maintainer
+  name: larsks
+- role: maintainer
+  name: Milstein
+- role: member
+  name: jappavoo
+- role: member
+  name: msdisme
+- role: maintainer
+  name: aabaris
+- role: member
+  name: EldritchJS
+- role: member
+  name: syedmohdqasim
+- role: member
+  name: computate
+- role: maintainer
+  name: naved001
+- role: member
+  name: lesleychou
+- role: maintainer
+  name: joachimweyl
+- role: member
+  name: Zongshun96
+- role: member
+  name: dheerajodha
+- role: maintainer
+  name: hpdempsey
+- role: member
+  name: tssala23
+- role: member
+  name: harshil-codes
+- role: member
+  name: RH-csaggin
+- role: member
+  name: schwesig
+- role: member
+  name: jbasu01
+- role: member
+  name: bnshr
+name: nerc-logs-metrics
+privacy: closed

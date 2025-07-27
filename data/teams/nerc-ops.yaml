@@ -1,0 +1,48 @@
+description: NERC system operators
+members:
+- role: maintainer
+  name: jtriley
+- role: maintainer
+  name: larsks
+- role: member
+  name: culbert
+- role: maintainer
+  name: Milstein
+- role: member
+  name: tzumainn
+- role: member
+  name: pjd-nu
+- role: member
+  name: knikolla
+- role: member
+  name: msdisme
+- role: maintainer
+  name: aabaris
+- role: member
+  name: StHeck
+- role: member
+  name: computate
+- role: member
+  name: syockel
+- role: maintainer
+  name: naved001
+- role: maintainer
+  name: joachimweyl
+- role: member
+  name: DanNiESh
+- role: member
+  name: hakasapl
+- role: member
+  name: IsaiahStapleton
+- role: member
+  name: tssala23
+- role: member
+  name: QuanMPhm
+- role: maintainer
+  name: dystewart
+- role: member
+  name: schwesig
+- role: member
+  name: memalhot
+name: nerc-ops
+privacy: closed

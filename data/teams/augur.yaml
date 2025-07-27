@@ -1,0 +1,10 @@
+description: RH ET Augur project authenticate to Cairo
+members:
+- role: member
+  name: cooktheryan
+- role: member
+  name: joachimweyl
+- role: member
+  name: johnStrunk
+name: augur
+privacy: closed

@@ -1,0 +1,16 @@
+description: Documentation maintainers
+members:
+- role: maintainer
+  name: larsks
+- role: maintainer
+  name: Milstein
+- role: member
+  name: msdisme
+- role: member
+  name: syockel
+- role: maintainer
+  name: joachimweyl
+- role: member
+  name: tssala23
+name: nerc-docs
+privacy: closed

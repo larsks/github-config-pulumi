@@ -1,0 +1,7 @@
+name: github-config
+description: GitHub organization configuration for OCP-on-NERC
+runtime: go
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: github-go

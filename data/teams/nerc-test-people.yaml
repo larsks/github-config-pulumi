@@ -1,0 +1,8 @@
+description: People who can authenticate to nerc-ocp-test
+members:
+- role: maintainer
+  name: larsks
+- role: member
+  name: tumido
+name: nerc-test-people
+privacy: closed

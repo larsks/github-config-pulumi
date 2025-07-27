@@ -12,12 +12,22 @@ import (
 	"github-config-pulumi/internal/readers"
 )
 
-func main() {
-	importMode := strings.ToLower(os.Getenv("PULUMI_IMPORT")) == "true"
+type (
+	OrgManager struct {
+		Name       string
+		ImportMode bool
+	}
+)
 
+func main() {
 	orgSpec, err := readers.ReadOrganization()
 	if err != nil {
 		log.Fatalf("failed to read organization: %v", err)
+	}
+
+	om := &OrgManager{
+		Name:       orgSpec.Name,
+		ImportMode: strings.ToLower(os.Getenv("PULUMI_IMPORT")) == "true",
 	}
 
 	members, err := readers.ReadMembers()
@@ -36,58 +46,74 @@ func main() {
 	}
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		for _, memberSpec := range members {
-			var options []pulumi.ResourceOption
-			if importMode {
-				options = append(options, pulumi.Import(pulumi.ID(fmt.Sprintf("%s:%s", orgSpec.Name, memberSpec.Name))))
-			}
-
-			_, err := github.NewMembership(ctx, fmt.Sprintf("github-member-%s", memberSpec.Name), &github.MembershipArgs{
-				Username: pulumi.String(memberSpec.Name),
-				Role:     pulumi.String(memberSpec.Role),
-			}, options...)
-			if err != nil {
-				return err
-			}
+		if err := om.realizeMembers(ctx, members); err != nil {
+			log.Fatalf("failed to manage members: %v", err)
 		}
 
-		for _, teamSpec := range teams {
-			var options []pulumi.ResourceOption
-			if importMode {
-				options = append(options, pulumi.Import(pulumi.ID(teamSpec.Name)))
-			}
-
-			team, err := github.NewTeam(ctx, fmt.Sprintf("github-team-%s", teamSpec.Name), &github.TeamArgs{
-				Name:        pulumi.String(teamSpec.Name),
-				Description: pulumi.String(teamSpec.Description),
-				Privacy:     pulumi.String(teamSpec.Privacy),
-			}, options...)
-			if err != nil {
-				return err
-			}
-
-			var teamMembers github.TeamMembersMemberArray
-			for _, member := range teamSpec.Members {
-				teamMembers = append(teamMembers, github.TeamMembersMemberArgs{
-					Username: pulumi.String(member.Name),
-					Role:     pulumi.String(member.Role),
-				})
-			}
-
-			var teamMembersOptions []pulumi.ResourceOption
-			teamMembersOptions = append(teamMembersOptions, pulumi.DependsOn([]pulumi.Resource{team}))
-			if importMode {
-				teamMembersOptions = append(teamMembersOptions, pulumi.Import(pulumi.ID(teamSpec.Name)))
-			}
-
-			_, err = github.NewTeamMembers(ctx, fmt.Sprintf("github-team-%s-members", teamSpec.Name), &github.TeamMembersArgs{
-				TeamId:  team.ID(),
-				Members: teamMembers,
-			}, teamMembersOptions...)
-			if err != nil {
-				return err
-			}
+		if err := om.realizeTeams(ctx, teams); err != nil {
+			log.Fatalf("failed to manage teams: %v", err)
 		}
+
 		return nil
 	})
+}
+
+func (om *OrgManager) realizeMembers(ctx *pulumi.Context, members []readers.Member) error {
+	for _, memberSpec := range members {
+		var options []pulumi.ResourceOption
+		if om.ImportMode {
+			options = append(options, pulumi.Import(pulumi.ID(fmt.Sprintf("%s:%s", om.Name, memberSpec.Name))))
+		}
+
+		_, err := github.NewMembership(ctx, fmt.Sprintf("github-member-%s", memberSpec.Name), &github.MembershipArgs{
+			Username: pulumi.String(memberSpec.Name),
+			Role:     pulumi.String(memberSpec.Role),
+		}, options...)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (om *OrgManager) realizeTeams(ctx *pulumi.Context, teams []readers.Team) error {
+	for _, teamSpec := range teams {
+		var options []pulumi.ResourceOption
+		if om.ImportMode {
+			options = append(options, pulumi.Import(pulumi.ID(teamSpec.Name)))
+		}
+
+		team, err := github.NewTeam(ctx, fmt.Sprintf("github-team-%s", teamSpec.Name), &github.TeamArgs{
+			Name:        pulumi.String(teamSpec.Name),
+			Description: pulumi.String(teamSpec.Description),
+			Privacy:     pulumi.String(teamSpec.Privacy),
+		}, options...)
+		if err != nil {
+			return err
+		}
+
+		var teamMembers github.TeamMembersMemberArray
+		for _, member := range teamSpec.Members {
+			teamMembers = append(teamMembers, github.TeamMembersMemberArgs{
+				Username: pulumi.String(member.Name),
+				Role:     pulumi.String(member.Role),
+			})
+		}
+
+		var teamMembersOptions []pulumi.ResourceOption
+		teamMembersOptions = append(teamMembersOptions, pulumi.DependsOn([]pulumi.Resource{team}))
+		if om.ImportMode {
+			teamMembersOptions = append(teamMembersOptions, pulumi.Import(pulumi.ID(teamSpec.Name)))
+		}
+
+		_, err = github.NewTeamMembers(ctx, fmt.Sprintf("github-team-%s-members", teamSpec.Name), &github.TeamMembersArgs{
+			TeamId:  team.ID(),
+			Members: teamMembers,
+		}, teamMembersOptions...)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

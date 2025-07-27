@@ -11,6 +11,8 @@ type (
 		Name string     `yaml:"name"`
 		Role MemberRole `yaml:"role"`
 	}
+
+	Members []Member
 )
 
 const (
@@ -18,7 +20,20 @@ const (
 	MemberRoleAdmin  MemberRole = "admin"
 )
 
+func (m *Member) SetDefaults() {
+	if m.Role == "" {
+		m.Role = MemberRoleMember
+	}
+}
+
+func (members *Members) SetDefaults() {
+	for i := range *members {
+		(*members)[i].SetDefaults()
+	}
+}
+
 func ReadMembers() ([]Member, error) {
 	filePath := fmt.Sprintf("%s/members.yaml", dataDirectory)
-	return readYAMLFile[[]Member](filePath)
+	members, err := readYAMLFileWithDefaults[Members, *Members](filePath)
+	return []Member(members), err
 }

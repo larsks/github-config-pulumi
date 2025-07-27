@@ -45,7 +45,7 @@ func main() {
 		log.Fatalf("failed to read labels: %v", err)
 	}
 
-	_, err = readers.ReadRepositories()
+	repos, err := readers.ReadRepositories()
 	if err != nil {
 		log.Fatalf("failed to read repositories: %v", err)
 	}
@@ -57,6 +57,10 @@ func main() {
 
 		if err := om.realizeTeams(ctx, teams); err != nil {
 			log.Fatalf("failed to manage teams: %v", err)
+		}
+
+		if err := om.realizeRepos(ctx, repos); err != nil {
+			log.Fatalf("failed to manage repositories: %v", err)
 		}
 
 		return nil
@@ -115,6 +119,26 @@ func (om *OrgManager) realizeTeams(ctx *pulumi.Context, teams []readers.Team) er
 			TeamId:  team.ID(),
 			Members: teamMembers,
 		}, teamMembersOptions...)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []readers.Repository) error {
+	for _, repoSpec := range repos {
+		var options []pulumi.ResourceOption
+		if om.ImportMode {
+			options = append(options, pulumi.Import(pulumi.ID(repoSpec.Name)))
+		}
+
+		_, err := github.NewRepository(ctx, fmt.Sprintf("github-repo-%s", repoSpec.Name), &github.RepositoryArgs{
+			Name:        pulumi.String(repoSpec.Name),
+			Description: pulumi.String(repoSpec.Description),
+			Visibility:  pulumi.String(repoSpec.Visibility),
+		}, options...)
 		if err != nil {
 			return err
 		}

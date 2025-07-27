@@ -30,7 +30,18 @@ const (
 	TeamRoleMaintainer TeamRole = "maintainer"
 )
 
+func (t *Team) SetDefaults() {
+	if t.Privacy == "" {
+		t.Privacy = TeamPrivacyClosed
+	}
+	for i := range t.Members {
+		if t.Members[i].Role == "" {
+			t.Members[i].Role = TeamRoleMember
+		}
+	}
+}
+
 func ReadTeams() ([]Team, error) {
 	globPattern := fmt.Sprintf("%s/teams/*.yaml", dataDirectory)
-	return readYAMLFiles[Team](globPattern)
+	return readYAMLFilesWithDefaults[Team, *Team](globPattern)
 }

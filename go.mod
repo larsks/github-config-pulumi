@@ -3,6 +3,7 @@ module github-config-pulumi
 go 1.24.5
 
 require (
+	github.com/go-playground/validator/v10 v10.27.0
 	github.com/pulumi/pulumi-github/sdk/v5 v5.26.0
 	github.com/pulumi/pulumi/sdk/v3 v3.186.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -35,7 +36,6 @@ require (
 	github.com/go-git/go-git/v5 v5.13.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.27.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.2.4 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect

@@ -48,51 +48,31 @@ const (
 )
 
 func (r *Repository) SetDefaults() {
-	t := true
-	f := false
-
 	if r.Visibility == "" {
 		r.Visibility = RepositoryVisibilityPublic
 	}
 
-	if r.HasDownloads == nil {
-		r.HasDownloads = &t
+	defaults := map[**bool]bool{
+		&r.HasDownloads:        true,
+		&r.HasIssues:           true,
+		&r.HasProjects:         false,
+		&r.HasWiki:             false,
+		&r.AutoInit:            true,
+		&r.IsTemplate:          false,
+		&r.VulnerabilityAlerts: false,
+		&r.UseCommonLabels:     true,
 	}
 
-	if r.HasIssues == nil {
-		r.HasIssues = &t
+	for field, defaultVal := range defaults {
+		if *field == nil {
+			val := defaultVal
+			*field = &val
+		}
 	}
 
-	if r.HasProjects == nil {
-		r.HasProjects = &f
-	}
-
-	if r.HasWiki == nil {
-		r.HasWiki = &f
-	}
-
-	if r.HasIssues == nil {
-		r.HasIssues = &t
-	}
-
-	if r.AllowAutoMerge == nil || r.Visibility == RepositoryVisibilityPrivate {
+	if r.AllowAutoMerge == nil || r.Visibility != RepositoryVisibilityPublic {
+		f := false
 		r.AllowAutoMerge = &f
-	}
-
-	if r.AutoInit == nil {
-		r.AutoInit = &t
-	}
-
-	if r.IsTemplate == nil {
-		r.IsTemplate = &f
-	}
-
-	if r.VulnerabilityAlerts == nil {
-		r.VulnerabilityAlerts = &f
-	}
-
-	if r.UseCommonLabels == nil {
-		r.UseCommonLabels = &t
 	}
 }
 

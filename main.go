@@ -136,7 +136,7 @@ func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []*readers.Reposit
 
 		var template github.RepositoryTemplateArgs
 
-		if om.DefaultTemplate.Repository != "" {
+		if om.DefaultTemplate != nil {
 			template.Owner = pulumi.String(om.DefaultTemplate.Owner)
 			template.Repository = pulumi.String(om.DefaultTemplate.Repository)
 			template.IncludeAllBranches = pulumi.Bool(*om.DefaultTemplate.IncludeAllBranches)

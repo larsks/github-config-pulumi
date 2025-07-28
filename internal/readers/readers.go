@@ -1,9 +1,13 @@
 package readers
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
+	"reflect"
+
+	"github.com/go-playground/validator/v10"
 )
 
 const (
@@ -12,6 +16,27 @@ const (
 
 type Defaultable interface {
 	SetDefaults()
+}
+
+var validate = validator.New()
+
+func validateStruct(s any) error {
+	if s == nil {
+		return nil
+	}
+
+	// Skip validation for slice types and pointer to slice types
+	// as they don't work well with struct validation
+	switch reflect.TypeOf(s).Kind() {
+	case reflect.Slice:
+		return nil
+	case reflect.Ptr:
+		if reflect.TypeOf(s).Elem().Kind() == reflect.Slice {
+			return nil
+		}
+	}
+
+	return validate.Struct(s)
 }
 
 func readYAMLFile[T any](filePath string) (T, error) {
@@ -71,6 +96,11 @@ func readYAMLFilesWithDefaults[PT Defaultable](globPattern string) ([]PT, error)
 		fd.Close()
 
 		item.SetDefaults()
+
+		if err := validateStruct(item); err != nil {
+			return nil, fmt.Errorf("validation failed for %s: %w", file, err)
+		}
+
 		results = append(results, item)
 	}
 
@@ -91,5 +121,10 @@ func readYAMLFileWithDefaults[PT Defaultable](filePath string) (PT, error) {
 	}
 
 	item.SetDefaults()
+
+	if err := validateStruct(item); err != nil {
+		return item, fmt.Errorf("validation failed for %s: %w", filePath, err)
+	}
+
 	return item, nil
 }

@@ -6,10 +6,10 @@ import (
 
 type (
 	Repository struct {
-		Name        string               `yaml:"name"`
+		Name        string               `yaml:"name" validate:"required"`
 		Description string               `yaml:"description"`
 		HomepageURL string               `yaml:"homepageURL"`
-		Visibility  RepositoryVisibility `yaml:"visibility"`
+		Visibility  RepositoryVisibility `yaml:"visibility" validate:"oneof=public private"`
 
 		AllowAutoMerge            *bool `yaml:"allowAutoMerge"`
 		AutoInit                  *bool `yaml:"autoInit"`
@@ -26,13 +26,13 @@ type (
 
 		RequiredStatusChecks []string `yaml:"requiredStatusChecks"`
 
-		Teams  []RepositoryTeamPermissions `yaml:"teams"`
+		Teams  []RepositoryTeamPermissions `yaml:"teams" validate:"dive"`
 		Labels []*Label                    `yaml:"labels"`
 	}
 
 	RepositoryTeamPermissions struct {
-		Name       string               `yaml:"name"`
-		Permission RepositoryPermission `yaml:"permission"`
+		Name       string               `yaml:"name" validate:"required"`
+		Permission RepositoryPermission `yaml:"permission" validate:"oneof=pull triage push maintain admin"`
 	}
 
 	RepositoryPermission string

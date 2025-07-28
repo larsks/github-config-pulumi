@@ -8,11 +8,13 @@ type (
 	MemberRole string
 
 	Member struct {
-		Name string     `yaml:"name"`
-		Role MemberRole `yaml:"role"`
+		Name string     `yaml:"name" validate:"required"`
+		Role MemberRole `yaml:"role" validate:"required,oneof=member admin"`
 	}
 
-	Members []Member
+	MembersFile struct {
+		Members []Member `yaml:"members" validate:"dive"`
+	}
 )
 
 const (
@@ -26,22 +28,22 @@ func (m *Member) SetDefaults() {
 	}
 }
 
-func (members *Members) SetDefaults() {
-	for i := range *members {
-		(*members)[i].SetDefaults()
+func (mf *MembersFile) SetDefaults() {
+	for i := range mf.Members {
+		mf.Members[i].SetDefaults()
 	}
 }
 
 func ReadMembers() ([]*Member, error) {
 	filePath := fmt.Sprintf("%s/members.yaml", dataDirectory)
-	members, err := readYAMLFileWithDefaults[*Members](filePath)
+	membersFile, err := readYAMLFileWithDefaults[*MembersFile](filePath)
 	if err != nil {
 		return nil, err
 	}
 
 	var result []*Member
-	for i := range *members {
-		result = append(result, &(*members)[i])
+	for i := range membersFile.Members {
+		result = append(result, &membersFile.Members[i])
 	}
 	return result, nil
 }

@@ -6,22 +6,20 @@ import (
 
 type (
 	Organization struct {
-		Name                             string                      `yaml:"name"`
-		DefaultTemplate                  TemplateSpec                `yaml:"defaultTemplate"`
+		Name                             string                      `yaml:"name" validate:"required"`
+		DefaultTemplate                  *TemplateSpec               `yaml:"defaultTemplate" validate:"omitempty"`
 		DefaultRepositoryTeamPermissions []RepositoryTeamPermissions `yaml:"defaultRepositoryTeamPermissions"`
 	}
 
 	TemplateSpec struct {
 		Owner              string `yaml:"owner"`
-		Repository         string `yaml:"repository"`
+		Repository         string `yaml:"repository" validate:"required"`
 		IncludeAllBranches *bool  `yaml:"includeAllBranches"`
 	}
 )
 
 func (o *Organization) SetDefaults() {
-	defaults := map[**bool]bool{
-		&o.DefaultTemplate.IncludeAllBranches: false,
-	}
+	defaults := map[**bool]bool{}
 
 	for field, defaultVal := range defaults {
 		if *field == nil {
@@ -30,8 +28,15 @@ func (o *Organization) SetDefaults() {
 		}
 	}
 
-	if o.DefaultTemplate.Owner == "" {
-		o.DefaultTemplate.Owner = o.Name
+	if o.DefaultTemplate != nil {
+		if o.DefaultTemplate.Owner == "" {
+			o.DefaultTemplate.Owner = o.Name
+		}
+
+		if o.DefaultTemplate.IncludeAllBranches == nil {
+			f := false
+			o.DefaultTemplate.IncludeAllBranches = &f
+		}
 	}
 }
 

@@ -6,34 +6,36 @@ import (
 
 type (
 	Label struct {
-		Name        string `yaml:"name"`
+		Name        string `yaml:"name" validate:"required"`
 		Description string `yaml:"description"`
-		Color       string `yaml:"color"`
+		Color       string `yaml:"color" validate:"required"`
 	}
 
-	Labels []Label
+	LabelsFile struct {
+		Labels []Label `yaml:"labels" validate:"dive"`
+	}
 )
 
 func (l *Label) SetDefaults() {
 	// No defaults needed for labels currently
 }
 
-func (labels *Labels) SetDefaults() {
-	for i := range *labels {
-		(*labels)[i].SetDefaults()
+func (lf *LabelsFile) SetDefaults() {
+	for i := range lf.Labels {
+		lf.Labels[i].SetDefaults()
 	}
 }
 
 func ReadLabels() ([]*Label, error) {
 	filePath := fmt.Sprintf("%s/labels.yaml", dataDirectory)
-	labels, err := readYAMLFileWithDefaults[*Labels](filePath)
+	labelsFile, err := readYAMLFileWithDefaults[*LabelsFile](filePath)
 	if err != nil {
 		return nil, err
 	}
 
 	var result []*Label
-	for i := range *labels {
-		result = append(result, &(*labels)[i])
+	for i := range labelsFile.Labels {
+		result = append(result, &labelsFile.Labels[i])
 	}
 	return result, nil
 }

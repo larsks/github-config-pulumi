@@ -9,15 +9,15 @@ type (
 	TeamRole    string
 
 	Team struct {
-		Name        string       `yaml:"name"`
+		Name        string       `yaml:"name" validate:"required"`
 		Description string       `yaml:"description"`
 		Privacy     TeamPrivacy  `yaml:"privacy"`
-		Members     []TeamMember `yaml:"members"`
+		Members     []TeamMember `yaml:"members" validate:"dive"`
 	}
 
 	TeamMember struct {
-		Name string   `yaml:"name"`
-		Role TeamRole `yaml:"role"`
+		Name string   `yaml:"name" validate:"required"`
+		Role TeamRole `yaml:"role" validate:"oneof=member maintainer"`
 	}
 )
 

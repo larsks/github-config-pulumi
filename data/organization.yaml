@@ -1,3 +1,4 @@
 name: ocp-on-nerc
-defaultTemplate:
-  repository: default-template
+defaultRepositoryTeamPermissions:
+  - name: nerc-org-admins
+    permission: push

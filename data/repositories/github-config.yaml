@@ -5,4 +5,4 @@ requiredStatusChecks:
 - pre-commit
 teams:
 - name: nerc-ops
-  permissions: push
+  permission: push

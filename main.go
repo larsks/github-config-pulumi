@@ -162,32 +162,80 @@ func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []*readers.Reposit
 			return err
 		}
 
-		var labels []*readers.Label
-		if *repoSpec.UseDefaultLabels {
-			labels = append(labels, defaultLabels...)
-		}
-
-		if repoSpec.Labels != nil {
-			labels = append(labels, repoSpec.Labels...)
-		}
-
-		var labelArgs github.IssueLabelsLabelArray
-		for _, label := range labels {
-			labelArgs = append(labelArgs, github.IssueLabelsLabelArgs{
-				Name:        pulumi.String(label.Name),
-				Description: pulumi.String(label.Description),
-				Color:       pulumi.String(label.Color),
-			})
-		}
-
-		options = append(options, pulumi.DependsOn([]pulumi.Resource{repo}))
-		_, err = github.NewIssueLabels(ctx, fmt.Sprintf("github-repo-%s-labels", repoSpec.Name), &github.IssueLabelsArgs{
-			Repository: pulumi.String("test-repo"),
-			Labels:     labelArgs,
-		}, options...)
-		if err != nil {
+		if err := om.realizeRepositoryLabels(ctx, repoSpec, repo, defaultLabels); err != nil {
 			return err
 		}
+
+		if err := om.realizeRepositoryTeamPermissions(ctx, repoSpec, repo); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (om *OrgManager) realizeRepositoryLabels(ctx *pulumi.Context, repoSpec *readers.Repository, repo *github.Repository, defaultLabels []*readers.Label) error {
+	options := []pulumi.ResourceOption{
+		pulumi.DependsOn([]pulumi.Resource{repo}),
+	}
+	if om.ImportMode {
+		options = append(options, pulumi.Import(pulumi.ID(repoSpec.Name)))
+	}
+
+	var labels []*readers.Label
+	if *repoSpec.UseDefaultLabels {
+		labels = append(labels, defaultLabels...)
+	}
+	labels = append(labels, repoSpec.Labels...)
+
+	var labelArgs github.IssueLabelsLabelArray
+	for _, label := range labels {
+		labelArgs = append(labelArgs, github.IssueLabelsLabelArgs{
+			Name:        pulumi.String(label.Name),
+			Description: pulumi.String(label.Description),
+			Color:       pulumi.String(label.Color),
+		})
+	}
+
+	_, err := github.NewIssueLabels(ctx, fmt.Sprintf("github-repo-%s-labels", repoSpec.Name), &github.IssueLabelsArgs{
+		Repository: pulumi.String("test-repo"),
+		Labels:     labelArgs,
+	}, options...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (om *OrgManager) realizeRepositoryTeamPermissions(ctx *pulumi.Context, repoSpec *readers.Repository, repo *github.Repository) error {
+	options := []pulumi.ResourceOption{
+		pulumi.DependsOn([]pulumi.Resource{repo}),
+	}
+	if om.ImportMode {
+		options = append(options, pulumi.Import(pulumi.ID(repoSpec.Name)))
+	}
+
+	var perms []readers.RepositoryTeamPermissions
+	if *repoSpec.UseDefaultTeamPermissions {
+		perms = append(perms, om.DefaultRepositoryTeamPermissions...)
+	}
+	perms = append(perms, repoSpec.Teams...)
+
+	var teamArgs github.RepositoryCollaboratorsTeamArray
+	for _, perm := range perms {
+		teamArgs = append(teamArgs, github.RepositoryCollaboratorsTeamArgs{
+			TeamId:     pulumi.String(perm.Name),
+			Permission: pulumi.String(perm.Permission),
+		})
+	}
+
+	_, err := github.NewRepositoryCollaborators(ctx, fmt.Sprintf("github-repo-%s-team-permissions", repoSpec.Name), &github.RepositoryCollaboratorsArgs{
+		Repository: pulumi.String(repoSpec.Name),
+		Teams:      teamArgs,
+	}, options...)
+	if err != nil {
+		return err
 	}
 
 	return nil

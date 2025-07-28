@@ -6,8 +6,9 @@ import (
 
 type (
 	Organization struct {
-		Name            string       `yaml:"name"`
-		DefaultTemplate TemplateSpec `yaml:"defaultTemplate"`
+		Name                             string                      `yaml:"name"`
+		DefaultTemplate                  TemplateSpec                `yaml:"defaultTemplate"`
+		DefaultRepositoryTeamPermissions []RepositoryTeamPermissions `yaml:"defaultRepositoryTeamPermissions"`
 	}
 
 	TemplateSpec struct {

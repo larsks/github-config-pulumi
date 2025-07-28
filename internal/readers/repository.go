@@ -11,17 +11,18 @@ type (
 		HomepageURL string               `yaml:"homepageURL"`
 		Visibility  RepositoryVisibility `yaml:"visibility"`
 
-		AllowAutoMerge      *bool `yaml:"allowAutoMerge"`
-		AutoInit            *bool `yaml:"autoInit"`
-		HasDiscussions      *bool `yaml:"hasDiscussions"`
-		HasDownloads        *bool `yaml:"hasDownloads"`
-		HasIssues           *bool `yaml:"hasIssues"`
-		HasProjects         *bool `yaml:"hasProjects"`
-		HasWiki             *bool `yaml:"hasWiki"`
-		IsTemplate          *bool `yaml:"istemplate"`
-		VulnerabilityAlerts *bool `yaml:"vulnerabilityAlerts"`
-		UseDefaultLabels    *bool `yaml:"useDefaultLabels"`
-		UseDefaultTemplate  *bool `yaml:"useDefaultTemplate"`
+		AllowAutoMerge            *bool `yaml:"allowAutoMerge"`
+		AutoInit                  *bool `yaml:"autoInit"`
+		HasDiscussions            *bool `yaml:"hasDiscussions"`
+		HasDownloads              *bool `yaml:"hasDownloads"`
+		HasIssues                 *bool `yaml:"hasIssues"`
+		HasProjects               *bool `yaml:"hasProjects"`
+		HasWiki                   *bool `yaml:"hasWiki"`
+		IsTemplate                *bool `yaml:"istemplate"`
+		VulnerabilityAlerts       *bool `yaml:"vulnerabilityAlerts"`
+		UseDefaultLabels          *bool `yaml:"useDefaultLabels"`
+		UseDefaultTemplate        *bool `yaml:"useDefaultTemplate"`
+		UseDefaultTeamPermissions *bool `yaml:"useDefaultPermissions"`
 
 		RequiredStatusChecks []string `yaml:"requiredStatusChecks"`
 
@@ -55,16 +56,17 @@ func (r *Repository) SetDefaults() {
 	}
 
 	defaults := map[**bool]bool{
-		&r.HasDiscussions:      false,
-		&r.HasDownloads:        true,
-		&r.HasIssues:           true,
-		&r.HasProjects:         false,
-		&r.HasWiki:             false,
-		&r.AutoInit:            true,
-		&r.IsTemplate:          false,
-		&r.VulnerabilityAlerts: false,
-		&r.UseDefaultLabels:    true,
-		&r.UseDefaultTemplate:  true,
+		&r.HasDiscussions:            false,
+		&r.HasDownloads:              true,
+		&r.HasIssues:                 true,
+		&r.HasProjects:               false,
+		&r.HasWiki:                   false,
+		&r.AutoInit:                  true,
+		&r.IsTemplate:                false,
+		&r.VulnerabilityAlerts:       false,
+		&r.UseDefaultLabels:          true,
+		&r.UseDefaultTeamPermissions: true,
+		&r.UseDefaultTemplate:        true,
 	}
 
 	for field, defaultVal := range defaults {

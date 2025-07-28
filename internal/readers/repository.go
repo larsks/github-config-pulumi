@@ -13,18 +13,20 @@ type (
 
 		AllowAutoMerge      *bool `yaml:"allowAutoMerge"`
 		AutoInit            *bool `yaml:"autoInit"`
+		HasDiscussions      *bool `yaml:"hasDiscussions"`
 		HasDownloads        *bool `yaml:"hasDownloads"`
 		HasIssues           *bool `yaml:"hasIssues"`
 		HasProjects         *bool `yaml:"hasProjects"`
 		HasWiki             *bool `yaml:"hasWiki"`
 		IsTemplate          *bool `yaml:"istemplate"`
 		VulnerabilityAlerts *bool `yaml:"vulnerabilityAlerts"`
-		UseCommonLabels     *bool `yaml:"useCommonLabels"`
+		UseDefaultLabels    *bool `yaml:"useDefaultLabels"`
+		UseDefaultTemplate  *bool `yaml:"useDefaultTemplate"`
 
 		RequiredStatusChecks []string `yaml:"requiredStatusChecks"`
 
 		Teams  []RepositoryTeamPermissions `yaml:"teams"`
-		Labels []Label                     `yaml:"labels"`
+		Labels []*Label                    `yaml:"labels"`
 	}
 
 	RepositoryTeamPermissions struct {
@@ -53,6 +55,7 @@ func (r *Repository) SetDefaults() {
 	}
 
 	defaults := map[**bool]bool{
+		&r.HasDiscussions:      false,
 		&r.HasDownloads:        true,
 		&r.HasIssues:           true,
 		&r.HasProjects:         false,
@@ -60,7 +63,8 @@ func (r *Repository) SetDefaults() {
 		&r.AutoInit:            true,
 		&r.IsTemplate:          false,
 		&r.VulnerabilityAlerts: false,
-		&r.UseCommonLabels:     true,
+		&r.UseDefaultLabels:    true,
+		&r.UseDefaultTemplate:  true,
 	}
 
 	for field, defaultVal := range defaults {

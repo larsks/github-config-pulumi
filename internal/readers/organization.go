@@ -6,12 +6,32 @@ import (
 
 type (
 	Organization struct {
-		Name string `yaml:"name"`
+		Name            string       `yaml:"name"`
+		DefaultTemplate TemplateSpec `yaml:"defaultTemplate"`
+	}
+
+	TemplateSpec struct {
+		Owner              string `yaml:"owner"`
+		Repository         string `yaml:"repository"`
+		IncludeAllBranches *bool  `yaml:"includeAllBranches"`
 	}
 )
 
 func (o *Organization) SetDefaults() {
-	// No defaults needed for organization currently
+	defaults := map[**bool]bool{
+		&o.DefaultTemplate.IncludeAllBranches: false,
+	}
+
+	for field, defaultVal := range defaults {
+		if *field == nil {
+			val := defaultVal
+			*field = &val
+		}
+	}
+
+	if o.DefaultTemplate.Owner == "" {
+		o.DefaultTemplate.Owner = o.Name
+	}
 }
 
 func ReadOrganization() (*Organization, error) {

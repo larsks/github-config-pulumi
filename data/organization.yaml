@@ -1,1 +1,3 @@
 name: ocp-on-nerc
+defaultTemplate:
+  repository: default-template

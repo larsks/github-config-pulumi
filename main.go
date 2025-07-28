@@ -14,7 +14,7 @@ import (
 
 type (
 	OrgManager struct {
-		Name       string
+		*readers.Organization
 		ImportMode bool
 	}
 )
@@ -26,8 +26,8 @@ func main() {
 	}
 
 	om := &OrgManager{
-		Name:       orgSpec.Name,
-		ImportMode: strings.ToLower(os.Getenv("PULUMI_IMPORT")) == "true",
+		Organization: orgSpec,
+		ImportMode:   strings.ToLower(os.Getenv("PULUMI_IMPORT")) == "true",
 	}
 
 	members, err := readers.ReadMembers()
@@ -40,7 +40,7 @@ func main() {
 		log.Fatalf("failed to read teams: %v", err)
 	}
 
-	labels, err := readers.ReadLabels()
+	defaultLabels, err := readers.ReadLabels()
 	if err != nil {
 		log.Fatalf("failed to read labels: %v", err)
 	}
@@ -59,7 +59,7 @@ func main() {
 			log.Fatalf("failed to manage teams: %v", err)
 		}
 
-		if err := om.realizeRepos(ctx, repos, labels); err != nil {
+		if err := om.realizeRepos(ctx, repos, defaultLabels); err != nil {
 			log.Fatalf("failed to manage repositories: %v", err)
 		}
 
@@ -127,19 +127,28 @@ func (om *OrgManager) realizeTeams(ctx *pulumi.Context, teams []*readers.Team) e
 	return nil
 }
 
-func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []*readers.Repository, labels []*readers.Label) error {
+func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []*readers.Repository, defaultLabels []*readers.Label) error {
 	for _, repoSpec := range repos {
 		var options []pulumi.ResourceOption
 		if om.ImportMode {
 			options = append(options, pulumi.Import(pulumi.ID(repoSpec.Name)))
 		}
 
-		_, err := github.NewRepository(ctx, fmt.Sprintf("github-repo-%s", repoSpec.Name), &github.RepositoryArgs{
+		var template github.RepositoryTemplateArgs
+
+		if om.DefaultTemplate.Repository != "" {
+			template.Owner = pulumi.String(om.DefaultTemplate.Owner)
+			template.Repository = pulumi.String(om.DefaultTemplate.Repository)
+			template.IncludeAllBranches = pulumi.Bool(*om.DefaultTemplate.IncludeAllBranches)
+		}
+
+		repo, err := github.NewRepository(ctx, fmt.Sprintf("github-repo-%s", repoSpec.Name), &github.RepositoryArgs{
 			Name: pulumi.String(repoSpec.Name),
 
 			AllowAutoMerge:      pulumi.Bool(*repoSpec.AllowAutoMerge),
 			AutoInit:            pulumi.Bool(*repoSpec.AutoInit),
 			Description:         pulumi.String(repoSpec.Description),
+			HasDiscussions:      pulumi.Bool(*repoSpec.HasDiscussions),
 			HasDownloads:        pulumi.Bool(*repoSpec.HasDownloads),
 			HasIssues:           pulumi.Bool(*repoSpec.HasIssues),
 			HasProjects:         pulumi.Bool(*repoSpec.HasProjects),
@@ -147,6 +156,34 @@ func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []*readers.Reposit
 			IsTemplate:          pulumi.Bool(*repoSpec.IsTemplate),
 			Visibility:          pulumi.String(repoSpec.Visibility),
 			VulnerabilityAlerts: pulumi.Bool(*repoSpec.VulnerabilityAlerts),
+			Template:            template,
+		}, options...)
+		if err != nil {
+			return err
+		}
+
+		var labels []*readers.Label
+		if *repoSpec.UseDefaultLabels {
+			labels = append(labels, defaultLabels...)
+		}
+
+		if repoSpec.Labels != nil {
+			labels = append(labels, repoSpec.Labels...)
+		}
+
+		var labelArgs github.IssueLabelsLabelArray
+		for _, label := range labels {
+			labelArgs = append(labelArgs, github.IssueLabelsLabelArgs{
+				Name:        pulumi.String(label.Name),
+				Description: pulumi.String(label.Description),
+				Color:       pulumi.String(label.Color),
+			})
+		}
+
+		options = append(options, pulumi.DependsOn([]pulumi.Resource{repo}))
+		_, err = github.NewIssueLabels(ctx, fmt.Sprintf("github-repo-%s-labels", repoSpec.Name), &github.IssueLabelsArgs{
+			Repository: pulumi.String("test-repo"),
+			Labels:     labelArgs,
 		}, options...)
 		if err != nil {
 			return err

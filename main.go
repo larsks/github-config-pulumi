@@ -40,7 +40,7 @@ func main() {
 		log.Fatalf("failed to read teams: %v", err)
 	}
 
-	_, err = readers.ReadLabels()
+	labels, err := readers.ReadLabels()
 	if err != nil {
 		log.Fatalf("failed to read labels: %v", err)
 	}
@@ -59,7 +59,7 @@ func main() {
 			log.Fatalf("failed to manage teams: %v", err)
 		}
 
-		if err := om.realizeRepos(ctx, repos); err != nil {
+		if err := om.realizeRepos(ctx, repos, labels); err != nil {
 			log.Fatalf("failed to manage repositories: %v", err)
 		}
 
@@ -67,7 +67,7 @@ func main() {
 	})
 }
 
-func (om *OrgManager) realizeMembers(ctx *pulumi.Context, members []readers.Member) error {
+func (om *OrgManager) realizeMembers(ctx *pulumi.Context, members []*readers.Member) error {
 	for _, memberSpec := range members {
 		var options []pulumi.ResourceOption
 		if om.ImportMode {
@@ -85,7 +85,7 @@ func (om *OrgManager) realizeMembers(ctx *pulumi.Context, members []readers.Memb
 	return nil
 }
 
-func (om *OrgManager) realizeTeams(ctx *pulumi.Context, teams []readers.Team) error {
+func (om *OrgManager) realizeTeams(ctx *pulumi.Context, teams []*readers.Team) error {
 	for _, teamSpec := range teams {
 		var options []pulumi.ResourceOption
 		if om.ImportMode {
@@ -127,7 +127,7 @@ func (om *OrgManager) realizeTeams(ctx *pulumi.Context, teams []readers.Team) er
 	return nil
 }
 
-func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []readers.Repository) error {
+func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []*readers.Repository, labels []*readers.Label) error {
 	for _, repoSpec := range repos {
 		var options []pulumi.ResourceOption
 		if om.ImportMode {
@@ -135,9 +135,18 @@ func (om *OrgManager) realizeRepos(ctx *pulumi.Context, repos []readers.Reposito
 		}
 
 		_, err := github.NewRepository(ctx, fmt.Sprintf("github-repo-%s", repoSpec.Name), &github.RepositoryArgs{
-			Name:        pulumi.String(repoSpec.Name),
-			Description: pulumi.String(repoSpec.Description),
-			Visibility:  pulumi.String(repoSpec.Visibility),
+			Name: pulumi.String(repoSpec.Name),
+
+			AllowAutoMerge:      pulumi.Bool(*repoSpec.AllowAutoMerge),
+			AutoInit:            pulumi.Bool(*repoSpec.AutoInit),
+			Description:         pulumi.String(repoSpec.Description),
+			HasDownloads:        pulumi.Bool(*repoSpec.HasDownloads),
+			HasIssues:           pulumi.Bool(*repoSpec.HasIssues),
+			HasProjects:         pulumi.Bool(*repoSpec.HasProjects),
+			HasWiki:             pulumi.Bool(*repoSpec.HasWiki),
+			IsTemplate:          pulumi.Bool(*repoSpec.IsTemplate),
+			Visibility:          pulumi.String(repoSpec.Visibility),
+			VulnerabilityAlerts: pulumi.Bool(*repoSpec.VulnerabilityAlerts),
 		}, options...)
 		if err != nil {
 			return err

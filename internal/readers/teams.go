@@ -41,7 +41,7 @@ func (t *Team) SetDefaults() {
 	}
 }
 
-func ReadTeams() ([]Team, error) {
+func ReadTeams() ([]*Team, error) {
 	globPattern := fmt.Sprintf("%s/teams/*.yaml", dataDirectory)
-	return readYAMLFilesWithDefaults[Team, *Team](globPattern)
+	return readYAMLFilesWithDefaults[*Team](globPattern)
 }

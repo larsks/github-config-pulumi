@@ -32,8 +32,16 @@ func (members *Members) SetDefaults() {
 	}
 }
 
-func ReadMembers() ([]Member, error) {
+func ReadMembers() ([]*Member, error) {
 	filePath := fmt.Sprintf("%s/members.yaml", dataDirectory)
-	members, err := readYAMLFileWithDefaults[Members, *Members](filePath)
-	return []Member(members), err
+	members, err := readYAMLFileWithDefaults[*Members](filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*Member
+	for i := range *members {
+		result = append(result, &(*members)[i])
+	}
+	return result, nil
 }

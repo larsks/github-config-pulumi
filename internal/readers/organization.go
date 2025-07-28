@@ -14,7 +14,7 @@ func (o *Organization) SetDefaults() {
 	// No defaults needed for organization currently
 }
 
-func ReadOrganization() (Organization, error) {
+func ReadOrganization() (*Organization, error) {
 	filePath := fmt.Sprintf("%s/organization.yaml", dataDirectory)
-	return readYAMLFileWithDefaults[Organization, *Organization](filePath)
+	return readYAMLFileWithDefaults[*Organization](filePath)
 }

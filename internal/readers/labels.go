@@ -24,8 +24,16 @@ func (labels *Labels) SetDefaults() {
 	}
 }
 
-func ReadLabels() ([]Label, error) {
+func ReadLabels() ([]*Label, error) {
 	filePath := fmt.Sprintf("%s/labels.yaml", dataDirectory)
-	labels, err := readYAMLFileWithDefaults[Labels, *Labels](filePath)
-	return []Label(labels), err
+	labels, err := readYAMLFileWithDefaults[*Labels](filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*Label
+	for i := range *labels {
+		result = append(result, &(*labels)[i])
+	}
+	return result, nil
 }

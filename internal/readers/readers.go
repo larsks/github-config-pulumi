@@ -14,11 +14,6 @@ type Defaultable interface {
 	SetDefaults()
 }
 
-type defaultablePtr[T any] interface {
-	*T
-	Defaultable
-}
-
 func readYAMLFile[T any](filePath string) (T, error) {
 	var result T
 	fd, err := os.Open(filePath)
@@ -54,15 +49,15 @@ func readYAMLFiles[T any](globPattern string) ([]T, error) {
 	return results, nil
 }
 
-func readYAMLFilesWithDefaults[T any, PT defaultablePtr[T]](globPattern string) ([]T, error) {
+func readYAMLFilesWithDefaults[PT Defaultable](globPattern string) ([]PT, error) {
 	files, err := filepath.Glob(globPattern)
 	if err != nil {
 		return nil, err
 	}
 
-	var results []T
+	var results []PT
 	for _, file := range files {
-		var item T
+		var item PT
 		fd, err := os.Open(file)
 		if err != nil {
 			return nil, err
@@ -75,26 +70,26 @@ func readYAMLFilesWithDefaults[T any, PT defaultablePtr[T]](globPattern string) 
 		}
 		fd.Close()
 
-		PT(&item).SetDefaults()
+		item.SetDefaults()
 		results = append(results, item)
 	}
 
 	return results, nil
 }
 
-func readYAMLFileWithDefaults[T any, PT defaultablePtr[T]](filePath string) (T, error) {
-	var result T
+func readYAMLFileWithDefaults[PT Defaultable](filePath string) (PT, error) {
+	var item PT
 	fd, err := os.Open(filePath)
 	if err != nil {
-		return result, err
+		return item, err
 	}
 	defer fd.Close()
 
 	decoder := yaml.NewDecoder(fd)
-	if err := decoder.Decode(&result); err != nil {
-		return result, err
+	if err := decoder.Decode(&item); err != nil {
+		return item, err
 	}
 
-	PT(&result).SetDefaults()
-	return result, nil
+	item.SetDefaults()
+	return item, nil
 }
